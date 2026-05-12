@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI智能教室调研 - 词云分析</title>
+  <style>
+    :root {
+      --primary: #1D9E75;
+      --primary-dark: #0F6E56;
+      --coral: #D85A30;
+      --amber: #BA7517;
+      --purple: #7F77DD;
+      --blue: #378ADD;
+      --bg: #F0F2F5;
+      --card: #FFFFFF;
+      --text: #1a1a18;
+      --text-muted: #666;
+      --border: #e0e0e0;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 25px 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+    
+    .header h1 {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+    
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: var(--card);
+      padding: 22px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    
+    .stat-card .icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    
+    .stat-card .value {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .stat-card .label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-title .icon {
+      font-size: 24px;
+    }
+    
+    .section-card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .wordcloud-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 25px;
+    }
+    
+    .wordcloud-box {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .wordcloud-box h3 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: var(--text);
+      text-align: center;
+    }
+    
+    .wordcloud-container {
+      height: 350px;
+      position: relative;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+    
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 25px;
+      margin-top: 25px;
+    }
+    
+    .chart-box {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .chart-box h3 {
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+    
+    .chart-container {
+      height: 280px;
+    }
+    
+    .table-section {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-top: 30px;
+    }
+    
+    .table-header {
+      padding: 20px 25px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 14px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      background: #fafafa;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      font-size: 12px;
+      margin: 2px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+    
+    @media (max-width: 1200px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .wordcloud-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>☁️ AI智能教室调研 - 词云分析</h1>
+    <p>可视化展示教师需求关键词</p>
+  </div>
+  
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="icon">📝</div>
+        <div class="value" id="total-count">0</div>
+        <div class="label">总问卷数</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">📅</div>
+        <div class="value" id="recent-count">0</div>
+        <div class="label">最近7天</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">👨‍🏫</div>
+        <div class="value" id="subject-count">0</div>
+        <div class="label">参与学科</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">⭐</div>
+        <div class="value" id="avg-willingness">-</div>
+        <div class="label">平均参与意愿</div>
+      </div>
+    </div>
+    
+    <!-- 词云图区域 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="icon">☁️</span>
+        <span>需求关键词词云</span>
+      </div>
+      
+      <div class="wordcloud-grid">
+        <div class="wordcloud-box">
+          <h3>🖥️ 大屏一体机功能</h3>
+          <div class="wordcloud-container">
+            <div id="wordcloud-bigscreen" class="wordcloud"></div>
+          </div>
+        </div>
+        
+        <div class="wordcloud-box">
+          <h3>✨ AI赋能课堂</h3>
+          <div class="wordcloud-container">
+            <div id="wordcloud-ai" class="wordcloud"></div>
+          </div>
+        </div>
+        
+        <div class="wordcloud-box">
+          <h3>📱 学生iPad功能</h3>
+          <div class="wordcloud-container">
+            <div id="wordcloud-ipad" class="wordcloud"></div>
+          </div>
+        </div>
+        
+        <div class="wordcloud-box">
+          <h3>😰 担忧与顾虑</h3>
+          <div class="wordcloud-container">
+            <div id="wordcloud-concerns" class="wordcloud"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 统计图表区域 -->
+    <div class="section-card">
+      <div class="section-title">
+        <span class="icon">📊</span>
+        <span>数据统计</span>
+      </div>
+      
+      <div class="chart-grid">
+        <div class="chart-box">
+          <h3>学科分布</h3>
+          <div class="chart-container">
+            <canvas id="subjectChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="chart-box">
+          <h3>教龄分布</h3>
+          <div class="chart-container">
+            <canvas id="experienceChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="chart-box">
+          <h3>年级分布</h3>
+          <div class="chart-container">
+            <canvas id="gradeChart"></canvas>
+          </div>
+        </div>
+        
+        <div class="chart-box">
+          <h3>参与意愿</h3>
+          <div class="chart-container">
+            <canvas id="willingnessChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 原始数据表格 -->
+    <div class="table-section">
+      <div class="table-header">
+        <h2>📋 问卷记录</h2>
+        <button class="btn btn-primary" onclick="refreshData()">刷新数据</button>
+      </div>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>提交时间</th>
+            <th>学科</th>
+            <th>教龄</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    let wordcloudData = {};
+    let stats = {};
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+    });
+    
+    async function loadData() {
+      try {
+        const [wordcloudRes, statsRes, dataRes] = await Promise.all([
+          fetch('/api/wordcloud'),
+          fetch('/api/stats'),
+          fetch('/api/data')
+        ]);
+        
+        wordcloudData = await wordcloudRes.json();
+        stats = await statsRes.json();
+        const allData = await dataRes.json();
+        
+        updateStatsCards();
+        renderWordclouds();
+        renderCharts();
+        renderTable(allData);
+      } catch (error) {
+        console.error('加载数据失败:', error);
+      }
+    }
+    
+    function refreshData() {
+      loadData();
+    }
+    
+    function updateStatsCards() {
+      document.getElementById('total-count').textContent = stats.total || 0;
+      document.getElementById('recent-count').textContent = stats.recent_7_days || 0;
+      document.getElementById('subject-count').textContent = Object.keys(stats.by_subject || {}).length;
+      
+      const willingnessData = stats.willingness || {};
+      if (Object.keys(willingnessData).length > 0) {
+        let total = 0, count = 0;
+        for (const [key, val] of Object.entries(willingnessData)) {
+          total += parseInt(key) * val;
+          count += val;
+        }
+        document.getElementById('avg-willingness').textContent = count > 0 ? (total / count).toFixed(1) : '-';
+      }
+    }
+    
+    function renderWordclouds() {
+      const colors = ['#1D9E75', '#378ADD', '#D85A30', '#BA7517', '#7F77DD', '#9B59B6', '#3498DB', '#1ABC9C'];
+      
+      renderWordcloud('wordcloud-bigscreen', wordcloudData.big_screen || [], colors);
+      renderWordcloud('wordcloud-ai', wordcloudData.ai_features || [], colors);
+      renderWordcloud('wordcloud-ipad', wordcloudData.ipad_features || [], colors);
+      renderWordcloud('wordcloud-concerns', wordcloudData.concerns || [], ['#e74c3c', '#c0392b', '#a93226', '#922b21']);
+    }
+    
+    function renderWordcloud(containerId, data, colorList) {
+      const chart = echarts.init(document.getElementById(containerId));
+      
+      const option = {
+        backgroundColor: 'transparent',
+        series: [{
+          type: 'wordCloud',
+          gridSize: 8,
+          sizeRange: [12, 48],
+          rotationRange: [-90, 90],
+          rotationStep: 45,
+          shape: 'circle',
+          textStyle: {
+            normal: {
+              color: function() {
+                return colorList[Math.floor(Math.random() * colorList.length)];
+              }
+            },
+            emphasis: {
+              shadowBlur: 10,
+              shadowColor: 'rgba(0, 0, 0, 0.3)'
+            }
+          },
+          data: data.map(item => ({
+            name: item.name,
+            value: item.value * 10
+          }))
+        }]
+      };
+      
+      chart.setOption(option);
+      
+      window.addEventListener('resize', function() {
+        chart.resize();
+      });
+    }
+    
+    function renderCharts() {
+      const colors = ['#1D9E75', '#378ADD', '#D85A30', '#BA7517', '#7F77DD', '#9B59B6', '#3498DB', '#1ABC9C'];
+      
+      // 学科分布
+      const subjectCtx = document.getElementById('subjectChart').getContext('2d');
+      new Chart(subjectCtx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(stats.by_subject || {}),
+          datasets: [{
+            data: Object.values(stats.by_subject || {}),
+            backgroundColor: colors.slice(0, Object.keys(stats.by_subject || {}).length)
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+      
+      // 教龄分布
+      const expCtx = document.getElementById('experienceChart').getContext('2d');
+      new Chart(expCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(stats.by_experience || {}),
+          datasets: [{
+            data: Object.values(stats.by_experience || {}),
+            backgroundColor: '#1D9E75'
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+      
+      // 年级分布
+      const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+      new Chart(gradeCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(stats.by_grade || {}),
+          datasets: [{
+            data: Object.values(stats.by_grade || {}),
+            backgroundColor: colors.slice(0, Object.keys(stats.by_grade || {}).length)
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+      
+      // 参与意愿
+      const willCtx = document.getElementById('willingnessChart').getContext('2d');
+      new Chart(willCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(stats.willingness || {}),
+          datasets: [{
+            data: Object.values(stats.willingness || {}),
+            backgroundColor: '#7F77DD'
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
+    }
+    
+    function renderTable(data) {
+      const tbody = document.getElementById('tableBody');
+      
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-state">暂无数据</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = data.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>${item.timestamp || '-'}</td>
+          <td>${(item.q1 || []).slice(0, 2).map(s => '<span class="tag">' + s + '</span>').join('')}</td>
+          <td>${item.q2 ? item.q2[0] : '-'}</td>
+        </tr>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
