@@ -41,7 +41,6 @@
     padding-bottom: 40px;
   }
 
-  /* Header */
   .hero {
     background: linear-gradient(145deg, #0F6E56 0%, #1D9E75 55%, #5DCAA5 100%);
     padding: 48px 20px 32px;
@@ -107,7 +106,6 @@
     gap: 4px;
   }
 
-  /* Progress */
   .progress-wrap {
     position: sticky;
     top: 0;
@@ -139,10 +137,8 @@
     width: 0%;
   }
 
-  /* Content */
   .content { padding: 16px 16px 0; }
 
-  /* Section card */
   .section-card {
     background: var(--card);
     border-radius: var(--radius);
@@ -177,7 +173,6 @@
   .section-sub { font-size: 12px; color: var(--text-hint); margin-top: 1px; }
   .section-body { padding: 14px 16px; }
 
-  /* Question block */
   .q-block { margin-bottom: 18px; }
   .q-block:last-child { margin-bottom: 0; }
   .q-label {
@@ -199,7 +194,6 @@
   }
   .q-max { font-size: 11px; color: var(--text-hint); margin-bottom: 8px; }
 
-  /* Chips */
   .chips { display: flex; flex-wrap: wrap; gap: 7px; }
   .chip {
     display: inline-flex;
@@ -219,14 +213,12 @@
   }
   .chip:active { transform: scale(0.96); }
 
-  /* Chip themes */
   .chip.active-teal { background: var(--teal); border-color: var(--teal); color: #fff; font-weight: 500; }
   .chip.active-blue { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 500; }
   .chip.active-coral { background: var(--coral); border-color: var(--coral); color: #fff; font-weight: 500; }
   .chip.active-amber { background: var(--amber); border-color: var(--amber); color: #fff; font-weight: 500; }
   .chip.active-purple { background: var(--purple); border-color: var(--purple); color: #fff; font-weight: 500; }
 
-  /* Scale */
   .scale-wrap { display: flex; gap: 6px; }
   .scale-btn {
     flex: 1;
@@ -248,7 +240,6 @@
   .scale-labels { display: flex; justify-content: space-between; margin-top: 6px; }
   .scale-labels span { font-size: 11px; color: var(--text-hint); }
 
-  /* Textarea */
   textarea {
     width: 100%;
     border: 1.5px solid var(--border-med);
@@ -268,7 +259,6 @@
   textarea:focus { border-color: var(--teal); }
   textarea::placeholder { color: var(--text-hint); }
 
-  /* Group label */
   .grp-label {
     font-size: 11px;
     font-weight: 600;
@@ -279,10 +269,8 @@
   }
   .grp-label:first-child { margin-top: 0; }
 
-  /* Divider */
   .q-divider { height: 1px; background: var(--border); margin: 16px 0; }
 
-  /* Submit */
   .submit-wrap { padding: 0 16px 20px; }
   .submit-btn {
     width: 100%;
@@ -300,7 +288,6 @@
   }
   .submit-btn:active { transform: scale(0.98); opacity: 0.9; }
 
-  /* Result overlay */
   .result-overlay {
     display: none;
     position: fixed;
@@ -387,7 +374,6 @@
   }
   .copy-btn:active { background: var(--teal-mid); }
 
-  /* Toast */
   .toast {
     position: fixed;
     bottom: 80px;
@@ -421,7 +407,6 @@
 </head>
 <body>
 
-<!-- Hero -->
 <div class="hero">
   <div class="hero-badge"><div class="hero-dot"></div>匿名填写 · 约5分钟</div>
   <h1>AI智能教室建设<br>教师需求调研</h1>
@@ -431,7 +416,6 @@
   </div>
 </div>
 
-<!-- Progress -->
 <div class="progress-wrap">
   <div class="progress-info">
     <span class="progress-label">填写进度</span>
@@ -440,10 +424,8 @@
   <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
 </div>
 
-<!-- Content -->
 <div class="content">
 
-<!-- Section 1 基本信息 -->
 <div class="section-card">
   <div class="section-header">
     <div class="section-icon icon-teal">👤</div>
@@ -500,7 +482,6 @@
   </div>
 </div>
 
-<!-- Section 3 大屏一体机 -->
 <div class="section-card">
   <div class="section-header">
     <div class="section-icon icon-coral">🖥️</div>
@@ -565,7 +546,6 @@
   </div>
 </div>
 
-<!-- Section 4 AI希望做什么 -->
 <div class="section-card">
   <div class="section-header">
     <div class="section-icon icon-amber">✨</div>
@@ -615,7 +595,6 @@
   </div>
 </div>
 
-<!-- Section 5 iPad -->
 <div class="section-card">
   <div class="section-header">
     <div class="section-icon icon-purple">📱</div>
@@ -700,7 +679,6 @@
   </div>
 </div>
 
-<!-- Section 6 课堂场景与支持 -->
 <div class="section-card">
   <div class="section-header">
     <div class="section-icon icon-teal">📋</div>
@@ -755,14 +733,12 @@
   </div>
 </div>
 
-</div><!-- /content -->
+</div>
 
-<!-- Submit -->
 <div class="submit-wrap" style="margin-top:8px;">
   <button class="submit-btn" onclick="showResult()">提交并查看填写摘要</button>
 </div>
 
-<!-- Result Sheet -->
 <div class="result-overlay" id="overlay" onclick="closeOverlay(event)">
   <div class="result-sheet">
     <div class="result-header">
@@ -773,14 +749,11 @@
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast">已复制到剪贴板</div>
 
 <script>
-// ── State ──────────────────────────────────────────
 var state = {};
 
-// ── Init chips ─────────────────────────────────────
 document.querySelectorAll('.chips[data-id]').forEach(function(wrap) {
   var id = wrap.dataset.id;
   var mode = wrap.dataset.mode;
@@ -812,7 +785,6 @@ document.querySelectorAll('.chips[data-id]').forEach(function(wrap) {
           state[id].push(val);
         }
       } else if (mode === 'max3-group') {
-        // cross-group max3
         var grp = group;
         if (!state[grp]) state[grp] = [];
         if (chip.classList.contains(activeClass)) {
@@ -828,7 +800,6 @@ document.querySelectorAll('.chips[data-id]').forEach(function(wrap) {
   });
 });
 
-// Scale buttons
 document.querySelectorAll('.scale-wrap[data-id]').forEach(function(wrap) {
   var id = wrap.dataset.id;
   state[id] = null;
@@ -844,7 +815,6 @@ document.querySelectorAll('.scale-wrap[data-id]').forEach(function(wrap) {
   });
 });
 
-// ── Progress ───────────────────────────────────────
 var TOTAL = 15;
 function countAnswered() {
   var n = 0;
@@ -854,7 +824,6 @@ function countAnswered() {
     if (Array.isArray(v) && v.length > 0) n++;
     else if (v && !Array.isArray(v)) n++;
   });
-  // text areas
   if (document.getElementById('q13').value.trim()) n++;
   if (document.getElementById('q16').value.trim()) n++;
   return Math.min(n, TOTAL);
@@ -866,14 +835,10 @@ function updateProgress() {
   document.getElementById('pct').textContent = pct + '%';
 }
 
-// ── Result ─────────────────────────────────────────
 var resultDefs = [
   { label: '任教学科', key: 'q1' },
   { label: '教龄', key: 'q2' },
   { label: '年级', key: 'q3' },
-  { label: 'AI使用频率', key: 'q4' },
-  { label: '用过的AI工具', key: 'q5' },
-  { label: '最大障碍', key: 'q6' },
   { label: '大屏功能 · 互动展示', key: 'q7a' },
   { label: '大屏功能 · AI智能', key: 'q7b' },
   { label: '大屏功能 · 学情评测', key: 'q7c' },
@@ -955,26 +920,27 @@ function showToast(msg) {
   setTimeout(function() { t.classList.remove('show'); }, 2000);
 }
 
-// 提交数据到后端
 function submitToBackend() {
   var submitData = {};
   
-  // 收集所有数据
-  var keys = ['q1','q2','q3','q4','q5','q6','q7a','q7b','q7c','q7d','q8','q9','q10','q11a','q11b','q11c','q11d','q11e','q12','q14','q15'];
+  var keys = ['q1','q2','q3','q7a','q7b','q7c','q7d','q8','q9','q10','q11a','q11b','q11c','q11d','q11e','q12','q14','q15'];
   keys.forEach(function(k) {
     if (state[k] && (Array.isArray(state[k]) ? state[k].length > 0 : true)) {
       submitData[k] = state[k];
     }
   });
   
-  // 收集文本域数据
   var q13 = document.getElementById('q13').value.trim();
   var q16 = document.getElementById('q16').value.trim();
   if (q13) submitData['q13'] = q13;
   if (q16) submitData['q16'] = q16;
   
-  // 发送到后端
-  fetch('/api/submit', {
+  var apiUrl = '/api/submit';
+  if (window.location.hostname.includes('netlify')) {
+    apiUrl = '/.netlify/functions/api/submit';
+  }
+  
+  fetch(apiUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -986,7 +952,6 @@ function submitToBackend() {
     if (data.success) {
       showToast('提交成功！感谢您的参与');
       closeResult();
-      // 清空表单
       location.reload();
     } else {
       showToast('提交失败：' + data.message);

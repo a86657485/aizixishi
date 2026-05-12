@@ -375,10 +375,11 @@
     
     async function loadData() {
       try {
+        const baseUrl = window.location.hostname.includes('netlify') ? '/.netlify/functions/api' : '/api';
         const [wordcloudRes, statsRes, dataRes] = await Promise.all([
-          fetch('/api/wordcloud'),
-          fetch('/api/stats'),
-          fetch('/api/data')
+          fetch(baseUrl + '/wordcloud'),
+          fetch(baseUrl + '/stats'),
+          fetch(baseUrl + '/data')
         ]);
         
         wordcloudData = await wordcloudRes.json();
