@@ -1,13 +1,14 @@
 [build]
-  command = "pip install -r requirements.txt && python build.py"
+  command = "python build.py"
   publish = "dist"
+  functions = "functions"
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  from = "/"
+  to = "/survey.html"
+  status = 301
 
 [[redirects]]
   from = "/api/*"
-  to = ".netlify/functions/api/:splat"
+  to = "/.netlify/functions/api/:splat"
   status = 200
