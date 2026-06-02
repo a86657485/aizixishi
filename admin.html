@@ -115,7 +115,6 @@
 </div>
 
 <script>
-var API = 'https://ai-survey-api.loca.lt/api';
 var stats = {}, allData = [];
 var charts = {};
 
@@ -127,11 +126,24 @@ function status(msg, ok) {
 
 async function loadData() {
   try {
-    var sr = fetch(API+'/stats'), dr = fetch(API+'/data');
-    var res = await Promise.all([sr, dr]);
-    if (!res[0].ok || !res[1].ok) throw new Error('API error');
-    stats = await res[0].json();
-    allData = await res[1].json();
+    var TK='a8b34e76a03b049c89756d8ca26c7e9b';
+    var API='https://gitee.com/api/v5/repos/xyjun_1_0/ai-classroom-survey/contents/data.json?access_token='+TK;
+    var r = await fetch(API);
+    if(!r.ok)throw new Error('Gitee '+r.status);
+    var cur = await r.json();
+    allData = JSON.parse(atob(cur.content))||[];
+    var wk=Date.now()-7*86400000;
+    stats={total:allData.length,recent_7_days:0,by_subject:{},by_experience:{},by_grade:{},big_screen:{},ai_features:{},ipad_features:{},ipad_need:{},ipad_worry:{},support:{},willingness:{}};
+    var cnt=function(o,a){if(Array.isArray(a))a.forEach(function(v){o[v]=(o[v]||0)+1})};
+    allData.forEach(function(d){
+      if(d.timestamp&&new Date(d.timestamp).getTime()>=wk)stats.recent_7_days++;
+      cnt(stats.by_subject,d.q1);cnt(stats.by_experience,d.q2);cnt(stats.by_grade,d.q3);
+      ['q7a','q7b','q7c','q7d'].forEach(function(k){cnt(stats.big_screen,d[k])});
+      ['q9a','q9b','q9c','q9d','q9'].forEach(function(k){cnt(stats.ai_features,d[k])});
+      ['q11a','q11b','q11c','q11d','q11e'].forEach(function(k){cnt(stats.ipad_features,d[k])});
+      cnt(stats.ipad_need,d.q10);cnt(stats.ipad_worry,d.q12);cnt(stats.support,d.q14);
+      if(d.q15)stats.willingness[d.q15]=(stats.willingness[d.q15]||0)+1;
+    });
     updateCards();
     renderDualPanel('big_screen', 'tbl-bigscreen', 'ch-bigscreen');
     renderDualPanel('ai_features', 'tbl-ai', 'ch-ai');
