@@ -131,7 +131,9 @@ async function loadData() {
     var r = await fetch(API);
     if(!r.ok)throw new Error('Gitee '+r.status);
     var cur = await r.json();
-    allData = JSON.parse(atob(cur.content))||[];
+    var raw=atob(cur.content),bytes=new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+    allData = JSON.parse(new TextDecoder().decode(bytes))||[];
     var wk=Date.now()-7*86400000;
     stats={total:allData.length,recent_7_days:0,by_subject:{},by_experience:{},by_grade:{},big_screen:{},ai_features:{},ipad_features:{},ipad_need:{},ipad_worry:{},support:{},willingness:{}};
     var cnt=function(o,a){if(Array.isArray(a))a.forEach(function(v){o[v]=(o[v]||0)+1})};
