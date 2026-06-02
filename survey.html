@@ -933,35 +933,44 @@ function submitSurvey() {
       submitData[k] = state[k];
     }
   });
-
-  var q13 = document.getElementById('q13').value.trim();
-  var q16 = document.getElementById('q16').value.trim();
+  var q13 = document.getElementById("q13").value.trim();
+  var q16 = document.getElementById("q16").value.trim();
   if (q13) submitData['q13'] = q13;
   if (q16) submitData['q16'] = q16;
   submitData['timestamp'] = new Date().toISOString();
 
-  var jsonStr = JSON.stringify(submitData);
+  // 保存到本地备份
+  try {
+    var backups = JSON.parse(localStorage.getItem('survey_backups') || '[]');
+    backups.push(submitData);
+    localStorage.setItem('survey_backups', JSON.stringify(backups));
+  } catch(e) {}
 
+  showToast('正在提交...');
   var apiUrl = 'https://ai-classroom-survey.ai-study-room-420833230.workers.dev/api/submit';
 
   fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: jsonStr
+    body: JSON.stringify(submitData)
   })
-  .then(function(response) { return response.json(); })
+  .then(function(response) {
+    if (!response.ok) throw new Error('服务器错误');
+    return response.json();
+  })
   .then(function(data) {
-      if (data.success) {
-        showToast('提交成功！感谢您的参与');
-        closeResult();
-        setTimeout(function() { location.reload(); }, 800);
-      } else {
-        showToast('提交失败：' + data.message);
-      }
-    })
-    .catch(function() {
-      showToast('提交失败，请稍后重试');
-    });
+    if (data.success) {
+      showToast('提交成功！感谢您的参与');
+      closeResult();
+      setTimeout(function() { location.reload(); }, 800);
+    } else {
+      showToast('错误：' + (data.message || '未知'));
+    }
+  })
+  .catch(function(e) {
+    showToast('提交失败，数据已保存本地。可刷新后重试。');
+    console.error('Submit error:', e);
+  });
 }
 </script>
 </body>
