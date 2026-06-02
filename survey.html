@@ -816,10 +816,10 @@ document.querySelectorAll('.scale-wrap[data-id]').forEach(function(wrap) {
   });
 });
 
-var TOTAL = 15;
+var TOTAL = 17;
 function countAnswered() {
   var n = 0;
-  var keys = ['q1','q2','q3','q7a','q7b','q7c','q7d','q8','q9','q10','q11a','q11b','q11c','q11d','q11e','q12','q14','q15'];
+  var keys = ['q1','q2','q3','q7a','q7b','q7c','q7d','q8','q9a','q9b','q9c','q9d','q10','q11a','q11b','q11c','q11d','q11e','q12','q14','q15'];
   keys.forEach(function(k) {
     var v = state[k];
     if (Array.isArray(v) && v.length > 0) n++;
@@ -845,7 +845,10 @@ var resultDefs = [
   { label: '大屏功能 · 学情评测', key: 'q7c' },
   { label: '大屏功能 · 录播远程', key: 'q7d' },
   { label: '操作复杂度接受度', key: 'q8' },
-  { label: '希望AI做的事', key: 'q9' },
+  { label: 'AI · 备课生成', key: 'q9a' },
+  { label: 'AI · 课堂互动', key: 'q9b' },
+  { label: 'AI · 评价反馈', key: 'q9c' },
+  { label: 'AI · 个性化学习', key: 'q9d' },
   { label: '学生iPad需求', key: 'q10' },
   { label: 'iPad · 课堂互动', key: 'q11a' },
   { label: 'iPad · 创作表达', key: 'q11b' },
@@ -923,7 +926,7 @@ function showToast(msg) {
 
 function submitSurvey() {
   var submitData = {};
-  var keys = ['q1','q2','q3','q7a','q7b','q7c','q7d','q8','q9','q10','q11a','q11b','q11c','q11d','q11e','q12','q14','q15'];
+  var keys = ['q1','q2','q3','q7a','q7b','q7c','q7d','q8','q9a','q9b','q9c','q9d','q10','q11a','q11b','q11c','q11d','q11e','q12','q14','q15'];
   keys.forEach(function(k) {
     if (state[k] && (Array.isArray(state[k]) ? state[k].length > 0 : true)) {
       submitData[k] = state[k];
