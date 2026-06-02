@@ -947,7 +947,7 @@ function submitSurvey() {
   } catch(e) {}
 
   showToast('正在提交...');
-      var apiUrl = 'https://survey-app-three-olive.vercel.app/api/submit';
+      var apiUrl = 'https://rotten-bikes-shine.loca.lt/api/submit';
       var ctrl = new AbortController();
       var tmr = setTimeout(function(){ctrl.abort()},15000);
       fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(submitData),signal:ctrl.signal})
