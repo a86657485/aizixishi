@@ -956,4 +956,16 @@ function submitSurvey() {
       .catch(function(e){clearTimeout(tmr);showToast(e.name==='AbortError'?'网络超时，请稍后重试':'提交失败，请稍后重试');console.error(e)});}
 </script>
 </body>
-</html>
+</html>showToast('正在提交...');
+      var TOKEN = 'a8b34e76a03b049c89756d8ca26c7e9b';
+      var API = 'https://gitee.com/api/v5/repos/xyjun_1_0/ai-classroom-survey/contents/data.json';
+      fetch(API+'?access_token='+TOKEN).then(function(r){return r.json()}).then(function(cur){
+        var sha=cur.sha, data=[];
+        try{ data=JSON.parse(atob(cur.content)) }catch(e){}
+        data.push(submitData);
+        var b64=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+        return fetch(API,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({access_token:TOKEN,content:b64,message:'survey submission',sha:sha})});
+      }).then(function(r){return r.json()}).then(function(d){
+        if(d.content){showToast('提交成功！感谢您的参与');closeResult();setTimeout(function(){location.reload()},800)}
+        else{showToast('提交失败：'+(d.message||'未知'))}
+      }).catch(function(e){showToast('提交失败，请稍后重试');console.error(e)});
