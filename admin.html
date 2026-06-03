@@ -255,6 +255,7 @@ function exportPDF(){
   wrap.style.cssText='width:700px;padding:20px;background:#fff;font-family:\"Microsoft YaHei\",sans-serif;position:fixed;top:0;left:0;z-index:99999';
   wrap.innerHTML='<h1 style=\"text-align:center;color:#0F6E56;font-size:18px;margin:0 0 3px\">AI智能教室建设 · 教师需求调研核心报告</h1><p style=\"text-align:center;font-size:11px;color:#999;margin:0 0 15px\">共 '+allData.length+' 条问卷数据 | '+new Date().toLocaleString('zh-CN')+'</p>';
 
+  var imgs=[];
   for(var i=0;i<4;i++){
     var sec=document.createElement('div');sec.style.marginBottom='15px';
     sec.innerHTML='<h2 style=\"font-size:14px;color:#0F6E56;border-bottom:2px solid #1D9E75;padding-bottom:3px;margin:0 0 8px\">'+titles[i]+'</h2>';
@@ -268,20 +269,27 @@ function exportPDF(){
     }
     var cv=document.getElementById(canvases[i]);
     if(cv){
-      var data=cv.toDataURL('image/png');
       var img=document.createElement('img');
-      img.src=data;img.style.cssText='width:100%;max-width:500px;display:block;margin:0 auto;border:1px solid #eee';
-      sec.appendChild(img);
+      img.src=cv.toDataURL('image/png');
+      img.style.cssText='width:100%;max-width:500px;display:block;margin:0 auto;border:1px solid #eee';
+      sec.appendChild(img);imgs.push(img);
     }
     wrap.appendChild(sec);
   }
   document.body.appendChild(wrap);
 
-  html2pdf().set({margin:5,filename:'AI智能教室调研核心报告.pdf',image:{type:'jpeg',quality:0.9},html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(wrap).save().then(function(){
-    document.body.removeChild(wrap);status('PDF导出成功',true);
-  }).catch(function(e){
-    document.body.removeChild(wrap);status('导出失败: '+e.message,false);
-  });
+  // Wait for all chart images to load before PDF capture
+  var loaded=0,total=imgs.length;
+  if(total===0)doCapture();
+  else imgs.forEach(function(img){img.onload=img.onerror=function(){loaded++;if(loaded>=total)doCapture()}});
+
+  function doCapture(){
+    html2pdf().set({margin:5,filename:'AI智能教室调研核心报告.pdf',image:{type:'jpeg',quality:0.9},html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(wrap).save().then(function(){
+      document.body.removeChild(wrap);status('PDF导出成功',true);
+    }).catch(function(e){
+      document.body.removeChild(wrap);status('导出失败: '+e.message,false);
+    });
+  }
 }
 
 loadData();
