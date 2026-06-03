@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI智能教室调研 · 数据后台</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
   <style>
     :root { --primary: #1D9E75; --primary-dark: #0F6E56; --coral: #D85A30; --amber: #BA7517; --purple: #7F77DD; --blue: #378ADD; --bg: #F0F2F5; --card: #FFFFFF; --text: #1a1a18; --text-muted: #666; --border: #e0e0e0; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -52,6 +53,7 @@
 <div class="header">
   <h1>AI智能教室建设 · 教师需求调研</h1>
   <p>数据后台 — 实时查看教师反馈与统计</p>
+  <button class="btn btn-primary" onclick="exportPDF()" style="margin-top:12px;background:#fff;color:#0F6E56;font-weight:600">📄 导出核心报告 PDF</button>
 </div>
 <div id="statusBar" class="status-bar status-ok">数据加载中...</div>
 
@@ -241,6 +243,35 @@ async function del(id) {
     var r = await fetch(API+'/data/'+id, { method: 'DELETE' });
     if (r.ok) { loadData(); } else { alert('删除失败'); }
   } catch(e) { alert('删除失败: '+e.message); }
+}
+
+function exportPDF(){
+  status('正在生成PDF...',true);
+  var canvasIds=['ch-bigscreen','ch-ai','ch-ipad','ch-concerns'];
+  var titles=['大屏一体机功能需求','AI赋能课堂需求','学生iPad功能需求','担忧与顾虑'];
+  var tables=['tbl-bigscreen','tbl-ai','tbl-ipad','tbl-concerns'];
+  var images=[];
+  canvasIds.forEach(function(id,i){
+    var c=document.getElementById(id);
+    if(c) images[i]=c.toDataURL('image/png');
+  });
+  var html='<html><head><meta charset=\"UTF-8\"><style>body{font-family:\"Microsoft YaHei\",sans-serif;padding:20px;color:#333}h1{text-align:center;color:#0F6E56;font-size:22px;margin-bottom:5px}h2{font-size:16px;color:#0F6E56;border-bottom:2px solid #1D9E75;padding-bottom:5px;margin-top:25px}p.sub{text-align:center;font-size:12px;color:#999;margin-bottom:25px}table{width:100%;border-collapse:collapse;margin-bottom:15px;font-size:12px}th{background:#0F6E56;color:#fff;padding:6px 10px;text-align:left}td{padding:5px 10px;border-bottom:1px solid #eee}.chart-img{width:100%;max-width:600px;margin:10px auto;display:block;border:1px solid #eee}</style></head><body>';
+  html+='<h1>AI智能教室建设 · 教师需求调研核心报告</h1><p class=\"sub\">共 '+allData.length+' 条问卷数据 | 生成时间: '+new Date().toLocaleString('zh-CN')+'</p>';
+  for(var i=0;i<4;i++){
+    html+='<h2>'+titles[i]+'</h2>';
+    var tb=document.getElementById(tables[i]);
+    if(tb) html+=tb.outerHTML;
+    if(images[i]) html+='<img class=\"chart-img\" src=\"'+images[i]+'\">';
+  }
+  html+='</body></html>';
+  var div=document.createElement('div');div.innerHTML=html;div.id='pdf-temp';div.style.position='absolute';div.style.left='-9999px';document.body.appendChild(div);
+  html2pdf().set({margin:[10,10,10,10],filename:'AI智能教室调研核心报告.pdf',image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,logging:false},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(div).save().then(function(){
+    document.body.removeChild(div);
+    status('PDF导出成功',true);
+  }).catch(function(e){
+    document.body.removeChild(div);
+    status('导出失败: '+e.message,false);
+  });
 }
 
 loadData();
