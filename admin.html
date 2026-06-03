@@ -246,50 +246,55 @@ async function del(id) {
 }
 
 function exportPDF(){
-  status('正在生成PDF...',true);
+  status('正在准备打印...',true);
   var titles=['大屏一体机功能需求','AI赋能课堂需求','学生iPad功能需求','担忧与顾虑'];
   var tables=['tbl-bigscreen','tbl-ai','tbl-ipad','tbl-concerns'];
   var canvases=['ch-bigscreen','ch-ai','ch-ipad','ch-concerns'];
 
-  var wrap=document.createElement('div');
-  wrap.style.cssText='width:700px;padding:20px;background:#fff;font-family:\"Microsoft YaHei\",sans-serif;position:fixed;top:0;left:0;z-index:99999';
-  wrap.innerHTML='<h1 style=\"text-align:center;color:#0F6E56;font-size:18px;margin:0 0 3px\">AI智能教室建设 · 教师需求调研核心报告</h1><p style=\"text-align:center;font-size:11px;color:#999;margin:0 0 15px\">共 '+allData.length+' 条问卷数据 | '+new Date().toLocaleString('zh-CN')+'</p>';
+  // Build report in a hidden container
+  var existed=document.getElementById('pdf-extract');
+  if(existed) existed.parentNode.removeChild(existed);
+  var wrap=document.createElement('div');wrap.id='pdf-extract';
+  wrap.style.cssText='max-width:800px;margin:20px auto;padding:30px;background:#fff;font-family:\"Microsoft YaHei\",sans-serif';
+  document.querySelector('.container').insertBefore(wrap,document.querySelector('.container').firstChild);
 
-  var imgs=[];
+  var h='<h1 style=\"text-align:center;color:#0F6E56;font-size:20px;margin-bottom:5px\">AI智能教室建设 · 教师需求调研核心报告</h1>';
+  h+='<p style=\"text-align:center;font-size:12px;color:#999;margin-bottom:25px\">共 '+allData.length+' 条问卷数据 | '+new Date().toLocaleString('zh-CN')+'</p>';
   for(var i=0;i<4;i++){
-    var sec=document.createElement('div');sec.style.marginBottom='15px';
-    sec.innerHTML='<h2 style=\"font-size:14px;color:#0F6E56;border-bottom:2px solid #1D9E75;padding-bottom:3px;margin:0 0 8px\">'+titles[i]+'</h2>';
+    h+='<h2 style=\"font-size:15px;color:#0F6E56;border-bottom:2px solid #1D9E75;padding-bottom:4px;margin-top:20px\">'+titles[i]+'</h2>';
     var tb=document.getElementById(tables[i]);
-    if(tb){
-      var tc=tb.cloneNode(true);
-      tc.querySelectorAll('th').forEach(function(e){e.style.cssText='background:#0F6E56;color:#fff;padding:3px 6px;text-align:left;font-size:11px'});
-      tc.querySelectorAll('td').forEach(function(e){e.style.cssText='padding:2px 6px;border-bottom:1px solid #eee;font-size:11px'});
-      tc.style.cssText='width:100%;border-collapse:collapse;margin-bottom:8px';
-      sec.appendChild(tc);
-    }
+    if(tb){var tc=tb.cloneNode(true);tc.removeAttribute('id');tc.style.cssText='width:100%;border-collapse:collapse;font-size:12px';
+      tc.querySelectorAll('th').forEach(function(e){e.style.cssText='background:#0F6E56;color:#fff;padding:4px 8px;text-align:left'});
+      tc.querySelectorAll('td').forEach(function(e){e.style.cssText='padding:3px 8px;border-bottom:1px solid #eee'});
+      h+=tc.outerHTML;}
     var cv=document.getElementById(canvases[i]);
-    if(cv){
-      var img=document.createElement('img');
-      img.src=cv.toDataURL('image/png');
-      img.style.cssText='width:100%;max-width:500px;display:block;margin:0 auto;border:1px solid #eee';
-      sec.appendChild(img);imgs.push(img);
-    }
-    wrap.appendChild(sec);
+    if(cv) h+='<img src=\"'+cv.toDataURL('image/png')+'\" style=\"width:100%;max-width:550px;display:block;margin:10px auto;border:1px solid #eee\">';
   }
-  document.body.appendChild(wrap);
+  wrap.innerHTML=h;
 
-  // Wait for all chart images to load before PDF capture
-  var loaded=0,total=imgs.length;
-  if(total===0)doCapture();
-  else imgs.forEach(function(img){img.onload=img.onerror=function(){loaded++;if(loaded>=total)doCapture()}});
-
-  function doCapture(){
-    html2pdf().set({margin:5,filename:'AI智能教室调研核心报告.pdf',image:{type:'jpeg',quality:0.9},html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(wrap).save().then(function(){
-      document.body.removeChild(wrap);status('PDF导出成功',true);
-    }).catch(function(e){
-      document.body.removeChild(wrap);status('导出失败: '+e.message,false);
-    });
+  // Hide all other content, show only report, print
+  var container=document.querySelector('.container');
+  var header=document.querySelector('.header');
+  var statusBar=document.getElementById('statusBar');
+  var allChildren=container.children;
+  var hidden=[];
+  for(var j=0;j<allChildren.length;j++){
+    if(allChildren[j]!==wrap){hidden.push(allChildren[j]);allChildren[j].style.display='none';}
   }
+  if(header) header.style.display='none';
+  if(statusBar) statusBar.style.display='none';
+
+  setTimeout(function(){
+    window.print();
+    // Restore after print dialog closes
+    setTimeout(function(){
+      hidden.forEach(function(el){el.style.display='';});
+      if(header) header.style.display='';
+      if(statusBar) statusBar.style.display='';
+      wrap.parentNode.removeChild(wrap);
+      status('PDF导出成功（用浏览器\"另存为PDF\"保存）',true);
+    },500);
+  },300);
 }
 
 loadData();
